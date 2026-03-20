@@ -1,8 +1,8 @@
 import { WebSocket } from "ws";
-import { createRoomIfNotExists, getRoom, deleteRoom } from "./rooms";
+import { createRoomIfNotExists, getRoom, deleteRoom } from "./rooms.js";
 
-import { validateRoom } from "../services/room.service";
-import { saveMessage, getRecentMessages } from "../services/message.service";
+import { validateRoom } from "../services/room.service.js";
+import { saveMessage, getRecentMessages } from "../services/message.service.js";
 
 export function handleWebSocket(ws: WebSocket) {
   (ws as any).lastMessageTime = 0;

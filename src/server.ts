@@ -3,8 +3,8 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import cors from "cors";
 import dotenv from "dotenv";
-import { handleWebSocket } from "./ws/handler";
-import roomRoutes from "./routes/room.routes";
+import { handleWebSocket } from "./ws/handler.js";
+import roomRoutes from "./routes/room.routes.js";
 
 dotenv.config();
 

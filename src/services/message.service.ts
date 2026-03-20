@@ -1,7 +1,7 @@
-import { db } from "../db/client";
-import { messages } from "../db/schema";
+import { db } from "../db/client.js";
+import { messages } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
-import { encrypt, decrypt } from "../lib/crypto";
+import { encrypt, decrypt } from "../lib/crypto.js";
 
 /* SAVE MESSAGE */
 export async function saveMessage(
