@@ -1,6 +1,7 @@
 import { db } from "../db/client";
 import { messages } from "../db/schema";
 import { eq, desc } from "drizzle-orm";
+import { encrypt, decrypt } from "../lib/crypto";
 
 /* SAVE MESSAGE */
 export async function saveMessage(
@@ -8,10 +9,13 @@ export async function saveMessage(
   username: string,
   message: string
 ) {
+  // 🔐 encrypt before storing
+  const encryptedMessage = encrypt(message);
+
   await db.insert(messages).values({
     roomId,
     username,
-    message,
+    message: encryptedMessage, // ✅ FIXED
   });
 
   // keep only last 100 messages
@@ -37,5 +41,11 @@ export async function getRecentMessages(roomId: string) {
     limit: 100,
   });
 
-  return msgs.reverse(); // oldest first
+  // 🔓 decrypt before sending to client
+  const decrypted = msgs.map((msg) => ({
+    ...msg,
+    message: decrypt(msg.message), // ✅ FIXED
+  }));
+
+  return decrypted.reverse(); // oldest first
 }
