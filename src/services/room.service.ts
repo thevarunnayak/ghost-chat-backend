@@ -1,8 +1,8 @@
-import { db } from "../db/client";
-import { rooms } from "../db/schema";
+import { db } from "../db/client.js";
+import { rooms } from "../db/schema.js";
 import { eq } from "drizzle-orm";
-import { hashPassword, comparePassword } from "../utils/hash";
-import { generateRoomId, generatePassword } from "../utils/generate";
+import { hashPassword, comparePassword } from "../utils/hash.js";
+import { generateRoomId, generatePassword } from "../utils/generate.js";
 
 /* CREATE ROOM */
 export async function createRoom() {
