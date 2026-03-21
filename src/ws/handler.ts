@@ -3,6 +3,9 @@ import { createRoomIfNotExists, getRoom, deleteRoom } from "./rooms.js";
 
 import { validateRoom } from "../services/room.service.js";
 import { saveMessage, getRecentMessages } from "../services/message.service.js";
+import { db } from "../db/client.js";
+import { eq } from "drizzle-orm";
+import { rooms } from "../db/schema.js";
 
 export function handleWebSocket(ws: WebSocket) {
   (ws as any).lastMessageTime = 0;
@@ -91,6 +94,17 @@ export function handleWebSocket(ws: WebSocket) {
 
         room.lastActiveAt = Date.now();
 
+        // 🔥 fetch room config
+        const dbRoom = await db.query.rooms.findFirst({
+          where: eq(rooms.id, roomId),
+        });
+
+        let expiresAt = null;
+
+        if (dbRoom?.ghostMode && dbRoom.expireDuration) {
+          expiresAt = new Date(Date.now() + dbRoom.expireDuration).toISOString();
+        }
+
         // 1. save to DB
         await saveMessage(roomId, username, msg.message);
 
@@ -102,6 +116,7 @@ export function handleWebSocket(ws: WebSocket) {
               username,
               message: msg.message,
               createdAt: new Date().toISOString(),
+              expiresAt, // 💣 IMPORTANT
             }),
           );
         }
