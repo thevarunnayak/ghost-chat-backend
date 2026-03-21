@@ -5,18 +5,28 @@ import { hashPassword, comparePassword } from "../utils/hash.js";
 import { generateRoomId, generatePassword } from "../utils/generate.js";
 
 /* CREATE ROOM */
-export async function createRoom() {
+export async function createRoom(
+  ghostMode = false,
+  expireDuration?: number
+) {
   const roomId = generateRoomId();
   const password = generatePassword();
 
   const passwordHash = await hashPassword(password);
 
+  // default = 1 hour
+  const finalDuration = ghostMode
+    ? expireDuration || 60 * 60 * 1000
+    : null;
+
   await db.insert(rooms).values({
     id: roomId,
     passwordHash,
+    ghostMode,
+    expireDuration: finalDuration,
   });
 
-  return { roomId, password };
+  return { roomId, password, ghostMode, expireDuration: finalDuration };
 }
 
 /* VALIDATE ROOM */

@@ -5,7 +5,9 @@ const router = Router();
 
 router.post("/create", async (req, res) => {
   try {
-    const room = await createRoom();
+    const { ghostMode = false, expireDuration } = req.body;
+
+    const room = await createRoom(ghostMode, expireDuration);
     res.json(room);
   } catch (err) {
     console.error(err);
