@@ -1,21 +1,17 @@
 import { db } from "../db/client.js";
 import { messages } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
-import { encrypt, decrypt } from "../lib/crypto.js";
 
 /* SAVE MESSAGE */
 export async function saveMessage(
   roomId: string,
   username: string,
-  message: string
+  message: any // 👈 encrypted object from frontend
 ) {
-  // 🔐 encrypt before storing
-  const encryptedMessage = encrypt(message);
-
   await db.insert(messages).values({
     roomId,
     username,
-    message: encryptedMessage, // ✅ FIXED
+    message: JSON.stringify(message), // ✅ store as string
   });
 
   // keep only last 100 messages
@@ -41,11 +37,19 @@ export async function getRecentMessages(roomId: string) {
     limit: 100,
   });
 
-  // 🔓 decrypt before sending to client
-  const decrypted = msgs.map((msg) => ({
-    ...msg,
-    message: decrypt(msg.message), // ✅ FIXED
-  }));
+  return msgs
+    .map((msg) => ({
+      ...msg,
+      message: safeParse(msg.message), // ✅ parse back to object
+    }))
+    .reverse(); // oldest first
+}
 
-  return decrypted.reverse(); // oldest first
+/* SAFE PARSE (handles old messages too) */
+function safeParse(data: string) {
+  try {
+    return JSON.parse(data);
+  } catch {
+    return data; // fallback for old plain text
+  }
 }
